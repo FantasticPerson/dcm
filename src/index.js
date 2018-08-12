@@ -11,8 +11,10 @@ import Home from './pages/router-demo/router1/Home'
 
 import Route from './pages/router-demo/router3/router'
 
+import Router from './router'
+
 
 import registerServiceWorker from './registerServiceWorker';
 
-ReactDOM.render(<Route />, document.getElementById('root'));
+ReactDOM.render(<Router />, document.getElementById('root'));
 registerServiceWorker();
