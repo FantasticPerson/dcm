@@ -15,10 +15,7 @@ import Login from './pages/form/login';
 import FormRegister from './pages/form/register';
 import BasicTable from './pages/table/basicTable';
 
-
 import Tabs from './pages/ui/tab';
-
-
 
 export default class IRouter extends React.Component{
     render(){
