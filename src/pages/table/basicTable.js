@@ -1,9 +1,13 @@
 import React from 'react'
-import {Card,Table} from 'antd'
+import {Card,Table, Button,Modal} from 'antd'
 import axios from '../../axios/index'
+import Utils from '../../utils/utils'
 
 export default class BasicTable extends React.Component{
     state={dataSource:[],dataSource2:[]}
+    params = {
+        page:1
+    }
     componentDidMount(){
         const dataSource = [
             {
@@ -41,17 +45,24 @@ export default class BasicTable extends React.Component{
         this.request()
     }
     request(){
+        let _this = this
         axios.ajax({
             url:'/table/list',
             data:{
                 params:{
-                    page:1
+                    page:this.params.page
                 },
                 isShowLoading:true
             }
         }).then((res)=>{
             this.setState({
-                dataSource2:res.result
+                dataSource2:res.result.list,
+                pagination:Utils.pagination(res,(current)=>{
+                    console.log(current)
+                    _this.params.page = current
+                    this.request()
+                    //to-do
+                })
             })
         })
     }
@@ -62,6 +73,16 @@ export default class BasicTable extends React.Component{
             selectedItem:r
         })
     }
+
+    handleDelete(){
+        let rows = this.state.selectedRows
+        let ids = rows.map(item=>item.id)
+        Modal.confirm({
+            title:'删除提示',
+            content:`您确定要删除这些选项吗?${ids}`
+        })
+    }
+
     render(){
         const {dataSource} = this.state
         const {selectedRowKeys} = this.state
@@ -102,6 +123,19 @@ export default class BasicTable extends React.Component{
             type:'radio',
             selectedRowKeys:selectedRowKeys
         }
+        const rowCheckSelection = {
+            type:'checkbox',
+            selectedRowKeys:selectedRowKeys,
+            onChange:(selectedRowKeys,selectedRows)=>{
+                let ids = selectedRowKeys.map((item)=>{
+                    return item.id
+                })
+                this.setState({
+                    selectedRowKeys,
+                    selectedRows
+                })
+            }
+        }
         return (
             <div>
                 <Card title="基础表格">
@@ -130,6 +164,29 @@ export default class BasicTable extends React.Component{
                             }
                         }}
                         rowSelection={rowSelection}
+                        columns={columns}
+                        dataSource={this.state.dataSource2}
+                    />
+                </Card>
+                <Card title="mock-多选" style={{margin:'0 10'}}>
+                    <div><Button onClick={this.handleDelete.bind(this)}>删除</Button></div>
+                    <Table
+                        pagination={false}
+                        bordered
+                        onRow={(r,index)=>{
+                            return {
+                                onClick:()=>{this.onRowClick(r,index)}
+                            }
+                        }}
+                        rowSelection={rowCheckSelection}
+                        columns={columns}
+                        dataSource={this.state.dataSource2}
+                    />
+                </Card>
+                <Card title="mock-分页" style={{margin:'0 10'}}>
+                    <Table
+                        pagination={this.state.pagination}
+                        bordered
                         columns={columns}
                         dataSource={this.state.dataSource2}
                     />
