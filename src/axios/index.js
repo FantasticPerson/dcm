@@ -39,7 +39,9 @@ export default class Axios{
                 if(res.status == '200'){
                     let response = res.data
                     if(response.code == '0'){
-                        response.result.list.map((item,index)=>item.key=index)
+                        if(response.result.list){
+                            response.result.list.map((item,index)=>item.key=index)
+                        }
                         resolve(response)
                     } else {
                         Modal.info({
