@@ -2,6 +2,9 @@ import React from 'react'
 import {Card,Button,Table,Form, Select, Modal,message,DatePicker} from 'antd'
 import axios from '../../axios'
 import Utils from '../../utils/utils'
+import ETable from '../../components/ETable'
+
+import BaseForm from '../../components/BaseForm/index'
 
 const FormItem = Form.Item
 const Option = Select.Option
@@ -10,31 +13,60 @@ export default class Order extends React.Component{
     state = {orderConfirmVisible:false,orderInfo:{},selectedItem:null}
     params={page:1}
 
+
+    formList = [
+        {
+            type:'SELECT',
+            label:'城市',
+            field:'city',
+            placeholder:'全部',
+            initialValue:'1',
+            width:80,
+            list: [{ id: '0', name: '全部' }, { id: '1', name: '北京' }, { id: '2', name: '天津' }, { id: '3', name: '上海' }]
+        },
+        {
+            type: '时间查询'
+        },
+        {
+            type: 'SELECT',
+            label: '订单状态',
+            field:'order_status',
+            placeholder: '全部',
+            initialValue: '1',
+            width: 80,
+            list: [{ id: '0', name: '全部' }, { id: '1', name: '进行中' }, { id: '2', name: '结束行程' }]
+        }
+    ]
+    handleFilter =(params)=>{
+        this.params = params
+        this.requestList()
+    }
     componentDidMount(){
         this.requestList()
     }
 
     requestList=()=>{
         let _this = this
-        axios.ajax({
-            url:'/order/list',
-            data:{
-                params:{
-                    page:this.params.page
-                }
-            }
-        }).then(res=>{
-            if(res.code == 0){
-                let list = res.result.item_list.map((item,index)=>{
-                    item.key = index
-                    return item
-                })
-                this.setState({list:list,pagination:Utils.pagination(res,(current)=>{
-                    _this.params.page = current
-                    _this.requestList()
-                })})
-            }
-        })
+        axios.requestList(_this,'/order/list',this.params)
+        // axios.ajax({
+        //     url:'/order/list',
+        //     data:{
+        //         params:{
+        //             page:this.params.page
+        //         }
+        //     }
+        // }).then(res=>{
+        //     if(res.code == 0){
+        //         let list = res.result.item_list.map((item,index)=>{
+        //             item.key = index
+        //             return item
+        //         })
+        //         this.setState({list:list,pagination:Utils.pagination(res,(current)=>{
+        //             _this.params.page = current
+        //             _this.requestList()
+        //         })})
+        //     }
+        // })
     }
 
     handleFinish=()=>{
@@ -177,7 +209,8 @@ export default class Order extends React.Component{
         return (
             <div>
                 <Card>
-                    <FilterForm></FilterForm>
+                    <BaseForm formList={this.formList} filterSubmit={this.handleFilter}></BaseForm>
+                    {/* <FilterForm></FilterForm> */}
                 </Card>
                 <Card style={{marginTop:10}}>
                     <Button type="primary" onClick={this.openDetail}>订单详情</Button>
@@ -185,7 +218,18 @@ export default class Order extends React.Component{
 
                 </Card>
                 <div className="content-wrap">
-                    <Table
+                    <ETable
+                        updateSelectedItem={Utils.updateSelectedItem.bind(this)}
+                        columns={columns} 
+                        dataSource={this.state.list}
+                        pagination={this.state.pagination}
+                        selectedRowKeys={this.state.selectedRowKeys}
+                        // rowSelection={rowSelection}
+                        rowSelection="checkbox"
+                        selectedItem={this.state.rowSelection}
+                        selectedIds={this.state.selectedIds}
+                    />
+                    {/* <Table
                         columns={columns} 
                         dataSource={this.state.list} 
                         pagination={this.state.pagination} 
@@ -196,7 +240,7 @@ export default class Order extends React.Component{
                                 onClick:()=>{this.onRowClick(r,index)}
                             }
                         }}
-                    />
+                    /> */}
                 </div>
                 <Modal
                     title="结束订单"
