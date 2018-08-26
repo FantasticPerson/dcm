@@ -5,6 +5,7 @@
 
 # testing
 /coverage
+/React_AntD_src
 
 # production
 /build

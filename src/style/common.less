@@ -35,3 +35,13 @@
         margin-right: -2px;
     }
 }
+
+.clearfix{
+    &::after{
+        content:' ';
+        clear: both;
+        display: block;
+        visibility: hidden;
+    }
+}
+
